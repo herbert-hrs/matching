@@ -1,0 +1,29 @@
+version: 0.2
+env:
+  variables:
+    IMAGE_VERSION: 1.2.4
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  build:
+    commands:
+      - echo "Building a Docker image.."
+      - docker build --build-arg BAGET_ENV=${BAGET_ENV} -t ${IMAGE_NAME} . --file Dockerfile
+      - echo "Tagging Docker image for ECR.."
+      - docker tag ${IMAGE_NAME}:latest ${ECR_REPO}:${IMAGE_VERSION}
+      - echo "Logging into ECR.."
+      - aws ecr get-login-password | docker login --username AWS --password-stdin ${ECR_REPO}
+      - echo "Pushing Docker image to ECR.."
+      - docker push ${ECR_REPO}:${IMAGE_VERSION}
+      - echo "Done."
+artifacts:
+  files:
+    - 'deploy/**/*'
+  secondary-artifacts:
+    matching_fixedge:
+      files:
+        - 'deploy/**/*'
+    matching_alug:
+      files:
+        - 'deploy/**/*'

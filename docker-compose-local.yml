@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  
+  matching:
+    image: matching-local:latest
+    container_name: matching-local
+    build: 
+      context: .
+      dockerfile: Dockerfile.local
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "6684:6684"
+      - "6685:6685"
+      - "6686:6686"
+    volumes:
+      - ./src:/src
+      - ./config:/src/config
+      - ./Logs:/src/Logs
+      - ./dump:/src/dump
+      - ./Session:/src/Session
+    command: [ "dotnet", "watch", "run", "--project", "/src"]
+networks: 
+  default:
+    external: true
+    name: dm-network
+  

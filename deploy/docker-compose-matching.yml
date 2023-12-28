@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  matching:
+    image: ${ECR_REPO}/${IMAGE_NAME}:1.2.4
+    container_name: ${APPLICATION_NAME}
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - ${PORT_MARKET}:${PORT_MARKET}
+      - ${PORT_BROKER}:${PORT_BROKER}
+      - ${PORT_HC}:${PORT_HC}
+    command: ["dotnet", "Matching.dll"]
+    volumes:
+      - ./config:/app/config
+      - ./Logs:/app/Logs
+      - ./dump:/app/dump
+      - ./Session:/app/Session
+    user: root
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://${HOST_LOGS}:12201"
+        tag: ${APPLICATION_NAME}
+networks: 
+  default:
+    external: true
+    name: dm-network
